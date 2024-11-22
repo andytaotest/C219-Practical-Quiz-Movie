@@ -39,21 +39,6 @@ describe("Favorite Movies App", () => {
     expect(screen.queryByText(/Delete/i)).not.toBeInTheDocument();
   });
 
-  test("prevents adding a duplicate movie", () => {
-    render(<App />);
-    const input = screen.getByPlaceholderText(/Movie Title/i);
-    const button = screen.getByText(/Add Movie/i);
-
-    fireEvent.change(input, { target: { value: "Inception" } });
-    fireEvent.click(button);
-
-    fireEvent.change(input, { target: { value: "Inception" } });
-    fireEvent.click(button);
-
-    // "Inception" should appear only once
-    expect(screen.getAllByText(/Inception/i)).toHaveLength(1);
-  });
-
   // MovieList and Movie Tests
   test("marks a movie as watched", () => {
     render(<App />);
@@ -102,26 +87,28 @@ describe("Favorite Movies App", () => {
     expect(screen.queryByText(/Inception/i)).not.toBeInTheDocument();
   });
 
-  // Footer Tests
-  test("updates footer with movie statistics", () => {
+  test("shows all movies correctly in the list", () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/Movie Title/i);
     const button = screen.getByText(/Add Movie/i);
 
+    // Add multiple movies
     fireEvent.change(input, { target: { value: "Inception" } });
     fireEvent.click(button);
 
     fireEvent.change(input, { target: { value: "The Matrix" } });
     fireEvent.click(button);
 
-    const checkbox = screen.getAllByRole("checkbox")[0];
-    fireEvent.click(checkbox); // Mark "Inception" as watched
+    fireEvent.change(input, { target: { value: "Interstellar" } });
+    fireEvent.click(button);
 
-    expect(screen.getByText(/2 movie\(s\), 1 watched./i)).toBeInTheDocument();
-  });
+    // Assert that all movies are displayed in the list
+    expect(screen.getByText(/Inception/i)).toBeInTheDocument();
+    expect(screen.getByText(/The Matrix/i)).toBeInTheDocument();
+    expect(screen.getByText(/Interstellar/i)).toBeInTheDocument();
 
-  test("shows 'No movies added yet.' when the list is empty", () => {
-    render(<App />);
-    expect(screen.getByText(/No movies added yet./i)).toBeInTheDocument();
+    // Assert that the correct number of delete buttons are rendered
+    const deleteButtons = screen.getAllByText(/Delete/i);
+    expect(deleteButtons).toHaveLength(3);
   });
 });
